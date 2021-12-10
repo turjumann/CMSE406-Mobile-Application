@@ -14,7 +14,6 @@ const RegisterScreen = ({ navigation }) => {
 
   //Manipulating the top bar
   useLayoutEffect(() => {
-    //asdkjasd
     navigation.setOptions({
       headerBackTitle: "Back to login",
       headerTintColor: "black",
