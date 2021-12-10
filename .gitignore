@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+# firebase config file
+backend/firebase.js
+# macOS
+.DS_Store
+demonstration1.rar
