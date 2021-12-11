@@ -10,20 +10,46 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [userProfile, setUserProfile] = useState();
+  const [currentUser, setCurrentUser] = useState();
 
   // Checking if there is a logged in user. If yes, it returns to the home screen
   useEffect(() => {
     const unsubscribed = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        console.log(authUser.uid);
-        let info = db
-      .collection("users")
-      .doc(authUser.uid)
-      .get()
-        .then((querySnapshot) => {
-          console.log(querySnapshot.data().profilePhotoUrl)
-          navigation.replace("Home", querySnapshot.data().profilePhotoUrl);
-        })
+        const currId = authUser.uid;
+        console.log(currId);
+        db.collection("allUsers")
+          .orderBy("email", "desc")
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((documentSnapshot) => {
+              let newData = {
+                id: documentSnapshot.id,
+                name: documentSnapshot.data().name,
+                surname: documentSnapshot.data().surname,
+                age: documentSnapshot.data().age,
+                sex: documentSnapshot.data().sex,
+                profilePhoto: documentSnapshot.data().profilePhotoUrl,
+              };
+              if (newData.id === currId) {
+                if (newData?.age === undefined) {
+                  navigation.replace(
+                    "HomeDocs",
+                    documentSnapshot.data().profilePhotoUrl
+                  );
+                  console.log("from doctor");
+                } else {
+                  navigation.replace(
+                    "Home",
+                    documentSnapshot.data().profilePhotoUrl
+                  );
+                  console.log("from patient");
+                }
+              }
+            });
+          });
+      } else {
+        console.log("Off");
       }
     });
     return unsubscribed;

@@ -20,6 +20,7 @@ const radioButtonsData = [
     id: "1", // acts as primary key, should be unique and non-empty string
     label: "Patient",
     value: "patient",
+    selected: true,
   },
   {
     id: "2",
@@ -49,13 +50,13 @@ export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState();
   const [surname, setSurname] = useState();
   const [age, setAge] = useState();
-  const [country, setCountry] = useState();
-  const [prevInst, setPrevInst] = useState();
+  const [hospital, setHospital] = useState();
+  const [uSex, setUSex] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState();
-  const [patientData, setPatientData] = useState(false);
+  const [patientData, setPatientData] = useState(true);
   const [doctorData, setDoctorData] = useState(false);
 
   const [sex, setSex] = useState(radioButtonsData2); //not implemented in firebase
@@ -69,6 +70,7 @@ export default function RegisterScreen({ navigation }) {
       setDoctorData(false);
     } else if (radioButtonArray[1].selected) {
       console.log(radioButtonArray[1].value);
+      radioButtons[0].selected = false;
       setPatientData(false);
       setDoctorData(true);
     }
@@ -77,8 +79,10 @@ export default function RegisterScreen({ navigation }) {
     setSex(radioButtonArray);
     if (radioButtonArray[0].selected) {
       console.log(radioButtonArray[0].value);
+      setUSex(radioButtonArray[0].value);
     } else if (radioButtonArray[1].selected) {
       console.log(radioButtonArray[1].value);
+      setUSex(radioButtonArray[0].value);
     }
   };
 
@@ -123,7 +127,7 @@ export default function RegisterScreen({ navigation }) {
 
       const url = await imageRef.getDownloadURL();
 
-      await db.collection("users").doc(uid).update({
+      await db.collection("allUsers").doc(uid).update({
         profilePhotoUrl: url,
       });
 
@@ -133,19 +137,26 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
-  const createUser = async (user) => {
+  const createUserPatient = async (user) => {
     try {
       await auth.createUserWithEmailAndPassword(user.email, user.password);
       const uid = getCurrentUser().uid;
-      console.log(uid);
       let profilePhotoUrl = "default";
 
-      await db.collection("users").doc(uid).set({
+      await db.collection("patients").doc(uid).set({
         name: user.name,
         surname: user.surname,
         age: user.age,
-        prevInst: user.prevInst,
-        country: user.country,
+        sex: user.uSex,
+        email: user.email,
+        profilePhotoUrl,
+      });
+
+      await db.collection("allUsers").doc(uid).set({
+        name: user.name,
+        surname: user.surname,
+        age: user.age,
+        sex: user.uSex,
         email: user.email,
         profilePhotoUrl,
       });
@@ -154,10 +165,59 @@ export default function RegisterScreen({ navigation }) {
         profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
       }
       delete user.password;
+      auth.onAuthStateChanged((authUser) => {
+        if (authUser) {
+          navigation.replace("Home", profilePhotoUrl);
+        }
+      });
       return { ...user, profilePhotoUrl, uid };
     } catch (error) {
       Alert.alert(error.message);
-      setUser((state) => ({ ...state, isLoggedIn: false }));
+      console.log("Error @createUser: ", error.message);
+    }
+  };
+
+  const createUserDoctor = async (user) => {
+    try {
+      await auth.createUserWithEmailAndPassword(user.email, user.password);
+      const uid = getCurrentUser().uid;
+      console.log(uid);
+      let profilePhotoUrl = "default";
+
+      await db
+        .collection("doctors")
+        .doc(uid)
+        .set({
+          name: "Dr. " + user.name,
+          surname: user.surname,
+          hospital: user.hospital,
+          email: user.email,
+          profilePhotoUrl,
+        });
+
+      await db
+        .collection("allUsers")
+        .doc(uid)
+        .set({
+          name: "Dr. " + user.name,
+          surname: user.surname,
+          hospital: user.hospital,
+          email: user.email,
+          profilePhotoUrl,
+        });
+
+      if (user.profilePhoto) {
+        profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
+      }
+      delete user.password;
+      auth.onAuthStateChanged((authUser) => {
+        if (authUser) {
+          navigation.replace("HomeDocs", profilePhotoUrl);
+        }
+      });
+      return { ...user, profilePhotoUrl, uid };
+    } catch (error) {
+      Alert.alert(error.message);
       console.log("Error @createUser: ", error.message);
     }
   };
@@ -198,34 +258,48 @@ export default function RegisterScreen({ navigation }) {
     pickImage();
   };
 
-  const signUp = async () => {
+  const signUpPatient = async () => {
     const user = {
       name,
       surname,
       age,
-      prevInst,
-      country,
+      uSex,
       email,
       password,
       profilePhoto,
     };
 
-    console.log(name, surname, age, prevInst, country, email, password);
+    console.log(name, surname, age, uSex, email, password);
     try {
-      const createdUser = await createUser(user);
+      const createdUser = await createUserPatient(user);
     } catch (error) {
-      console.log("Error: @signUp:", error);
+      console.log("Error: @signUpPatient:", error);
     }
   };
+
+  const signUpDoctor = async () => {
+    const user = {
+      name,
+      surname,
+      hospital,
+      email,
+      password,
+      profilePhoto,
+    };
+
+    console.log(name, surname, hospital, email, password);
+    try {
+      const createdUser = await createUserDoctor(user);
+    } catch (error) {
+      console.log("Error: @signUpDoctor:", error);
+    }
+  };
+
   //Rendering the screen components
   return (
     <Container>
       <StatusBar style="dark" />
-      <Main>
-        <Text medium semi center>
-          Register as Patient, Doctor, or Gov Auth
-        </Text>
-      </Main>
+      <Main></Main>
       <ProfilePhotoContainer onPress={addProfilePhoto}>
         {profilePhoto ? (
           <ProfilePhoto source={{ uri: profilePhoto }} />
@@ -235,7 +309,7 @@ export default function RegisterScreen({ navigation }) {
           </DefaultProfilePhoto>
         )}
       </ProfilePhotoContainer>
-      <View style={{ height: 300 }}>
+      <View style={{ height: 310 }}>
         <ScrollView>
           <Auth>
             <AuthContainer>
@@ -259,30 +333,18 @@ export default function RegisterScreen({ navigation }) {
                 value={surname}
               />
             </AuthContainer>
-            <AuthContainer>
-              <AuthTitle>Email Address</AuthTitle>
-              <AuthField
-                autoCapitalize="none"
-                autoCompleteType="email"
-                autoCorrect={false}
-                autoFocus={false}
-                keyboardType="email-address"
-                onChangeText={(email) => setEmail(email.trim())}
-                value={email}
-              />
-            </AuthContainer>
-            <AuthContainer>
-              <AuthTitle>Password</AuthTitle>
-              <AuthField
-                autoCapitalize="none"
-                autoCompleteType="password"
-                autoCorrect={false}
-                autoFocus={false}
-                secureTextEntry={true}
-                onChangeText={(password) => setPassword(password.trim())}
-                value={password}
-              />
-            </AuthContainer>
+            {doctorData ? (
+              <AuthContainer>
+                <AuthTitle>Hospital Name</AuthTitle>
+                <AuthField
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  autoFocus={false}
+                  onChangeText={(hospital) => setHospital(hospital)}
+                  value={hospital}
+                />
+              </AuthContainer>
+            ) : null}
             {patientData ? (
               <AuthContainer>
                 <AuthTitle>Age</AuthTitle>
@@ -308,26 +370,29 @@ export default function RegisterScreen({ navigation }) {
                 </SexRadioContainer>
               </SexContainer>
             ) : null}
-
+            {patientData ? <HorizontalLine></HorizontalLine> : null}
             <AuthContainer>
-              <AuthTitle>Previous Institution</AuthTitle>
+              <AuthTitle>Email Address</AuthTitle>
               <AuthField
-                autoCapitalize="words"
+                autoCapitalize="none"
+                autoCompleteType="email"
                 autoCorrect={false}
                 autoFocus={false}
-                onChangeText={(prevInst) => setPrevInst(prevInst)}
-                value={prevInst}
+                keyboardType="email-address"
+                onChangeText={(email) => setEmail(email.trim())}
+                value={email}
               />
             </AuthContainer>
-
             <AuthContainer>
-              <AuthTitle>Country</AuthTitle>
+              <AuthTitle>Password</AuthTitle>
               <AuthField
-                autoCapitalize="words"
+                autoCapitalize="none"
+                autoCompleteType="password"
                 autoCorrect={false}
                 autoFocus={false}
-                onChangeText={(country) => setCountry(country)}
-                value={country}
+                secureTextEntry={true}
+                onChangeText={(password) => setPassword(password.trim())}
+                value={password}
               />
             </AuthContainer>
 
@@ -339,6 +404,7 @@ export default function RegisterScreen({ navigation }) {
           </Auth>
         </ScrollView>
       </View>
+      <MainHorizontalLine></MainHorizontalLine>
       <RadioContainer>
         <RadioGroup
           radioButtons={radioButtons}
@@ -346,7 +412,10 @@ export default function RegisterScreen({ navigation }) {
           layout="row"
         />
       </RadioContainer>
-      <RegisterContainer onPress={signUp} disabled={loading}>
+      <RegisterContainer
+        onPress={patientData ? signUpPatient : signUpDoctor}
+        disabled={loading}
+      >
         {loading ? (
           <Loading />
         ) : (
@@ -407,15 +476,16 @@ const AuthContainer = styled.View`
 `;
 
 const RadioContainer = styled.View`
-  margin-bottom: 20px;
+  margin-top: 12px;
+  margin-bottom: 12px;
   align-items: center;
 `;
 
 const AuthTitle = styled(Text)`
   color: #8e93a1;
-  font-size: 12px;
+  font-size: 15px;
   text-transform: uppercase;
-  font-weight: 300;
+  font-weight: 400;
 `;
 
 const AuthField = styled.TextInput`
@@ -447,7 +517,17 @@ const SexContainer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 `;
 
 const SexRadioContainer = styled.View``;
+
+const HorizontalLine = styled.View`
+  border-bottom-color: #8e93a1;
+  border-bottom-width: 0.5px;
+  margin-bottom: 20px;
+`;
+const MainHorizontalLine = styled.View`
+  border-top-color: #5d616e;
+  border-top-width: 2px;
+`;
