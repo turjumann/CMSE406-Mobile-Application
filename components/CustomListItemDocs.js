@@ -5,7 +5,7 @@ import { auth, db } from "../backend/firebase";
 
 import styled from "styled-components";
 import MessageScreen from "../screens/MessageScreen";
-import Text from "../components/Text";
+import Text from "./Text";
 import "firebase/auth";
 import "firebase/firestore";
 import { Alert } from "react-native";
@@ -21,7 +21,7 @@ getUserInfo = async (uid) => {
   }
 };
 
-export default CustomListItem = ({ navigation }) => {
+export default CustomListItemDocs = ({ navigation }) => {
   getCurrentUser = () => {
     return auth.currentUser;
   };
@@ -29,7 +29,7 @@ export default CustomListItem = ({ navigation }) => {
   getRegisteredUsers = async () => {
     const currId = getCurrentUser().uid;
     return await db
-      .collection("doctors")
+      .collection("patients")
       .orderBy("email", "desc")
       .get()
       .then((querySnapshot) => {
@@ -40,7 +40,8 @@ export default CustomListItem = ({ navigation }) => {
             id: documentSnapshot.id,
             name: documentSnapshot.data().name,
             surname: documentSnapshot.data().surname,
-            hospital: documentSnapshot.data().hospital,
+            age: documentSnapshot.data().age,
+            sex: documentSnapshot.data().sex,
             profilePhoto: documentSnapshot.data().profilePhotoUrl,
           };
           if (newData.id === currId) {
@@ -111,7 +112,7 @@ export default CustomListItem = ({ navigation }) => {
             <ListItem.Subtitle
               style={{ color: "#ad1c45", fontWeight: "300", fontSize: 15 }}
             >
-              {item.hospital}
+              {item.age} {item.sex}
             </ListItem.Subtitle>
           </ListItem.Content>
           <ListItem.Chevron />
