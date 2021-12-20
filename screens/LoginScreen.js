@@ -10,20 +10,39 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [userProfile, setUserProfile] = useState();
+  const [currentUser, setCurrentUser] = useState();
 
   // Checking if there is a logged in user. If yes, it returns to the home screen
   useEffect(() => {
     const unsubscribed = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        console.log(authUser.uid);
-        let info = db
-      .collection("users")
-      .doc(authUser.uid)
-      .get()
-        .then((querySnapshot) => {
-          console.log(querySnapshot.data().profilePhotoUrl)
-          navigation.replace("Home", querySnapshot.data().profilePhotoUrl);
-        })
+        const currId = authUser.uid;
+        console.log(currId);
+        db.collection("allUsers")
+          .doc(currId)
+          .get()
+          .then((querySnapshot) => {
+            let newData = {
+              id: querySnapshot.id,
+              name: querySnapshot.data().name,
+              surname: querySnapshot.data().surname,
+              age: querySnapshot.data().age,
+              sex: querySnapshot.data().sex,
+              profilePhoto: querySnapshot.data().profilePhotoUrl,
+            };
+            if (newData?.age === undefined) {
+              navigation.replace(
+                "HomeDocs",
+                querySnapshot.data().profilePhotoUrl
+              );
+              console.log("from doctor");
+            } else {
+              navigation.replace("Home", querySnapshot.data().profilePhotoUrl);
+              console.log("from patient");
+            }
+          });
+      } else {
+        console.log("Off");
       }
     });
     return unsubscribed;
