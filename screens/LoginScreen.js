@@ -19,34 +19,27 @@ const LoginScreen = ({ navigation }) => {
         const currId = authUser.uid;
         console.log(currId);
         db.collection("allUsers")
-          .orderBy("email", "desc")
+          .doc(currId)
           .get()
           .then((querySnapshot) => {
-            querySnapshot.forEach((documentSnapshot) => {
-              let newData = {
-                id: documentSnapshot.id,
-                name: documentSnapshot.data().name,
-                surname: documentSnapshot.data().surname,
-                age: documentSnapshot.data().age,
-                sex: documentSnapshot.data().sex,
-                profilePhoto: documentSnapshot.data().profilePhotoUrl,
-              };
-              if (newData.id === currId) {
-                if (newData?.age === undefined) {
-                  navigation.replace(
-                    "HomeDocs",
-                    documentSnapshot.data().profilePhotoUrl
-                  );
-                  console.log("from doctor");
-                } else {
-                  navigation.replace(
-                    "Home",
-                    documentSnapshot.data().profilePhotoUrl
-                  );
-                  console.log("from patient");
-                }
-              }
-            });
+            let newData = {
+              id: querySnapshot.id,
+              name: querySnapshot.data().name,
+              surname: querySnapshot.data().surname,
+              age: querySnapshot.data().age,
+              sex: querySnapshot.data().sex,
+              profilePhoto: querySnapshot.data().profilePhotoUrl,
+            };
+            if (newData?.age === undefined) {
+              navigation.replace(
+                "HomeDocs",
+                querySnapshot.data().profilePhotoUrl
+              );
+              console.log("from doctor");
+            } else {
+              navigation.replace("Home", querySnapshot.data().profilePhotoUrl);
+              console.log("from patient");
+            }
           });
       } else {
         console.log("Off");

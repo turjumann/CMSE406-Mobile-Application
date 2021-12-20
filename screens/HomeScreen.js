@@ -26,10 +26,29 @@ import ECHistory from "../components/ECHistory";
 const HomeScreen = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [cards, setCards] = useState([]);
+  const [onRender, setOnRender] = useState(0);
 
   getCurrentUser = () => {
     return auth.currentUser;
   };
+
+  const getCards = async () => {
+    const cards = await db
+      .collection("EC-Forms")
+      .doc(getCurrentUser().uid)
+      .collection("EC-History")
+      .orderBy("id")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((snapshot) => {
+          setCards((cards) => [...cards, snapshot.data()]);
+        });
+      });
+  };
+  useEffect(() => {
+    setCards([]);
+    getCards();
+  }, [onRender]);
 
   //Sign out method. When called, it returns the user to the login screen
   const signOutUser = () => {
@@ -39,8 +58,9 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   const onSubmit = (card) => {
-    setCards((cards) => [...cards, card]);
+    //setCards((cards) => [...cards, card]);
     setModalVisible(!modalVisible);
+    setOnRender(onRender + 1);
   };
   //Altering the top bar title, icons, and style.
   useLayoutEffect(() => {
@@ -137,8 +157,9 @@ const HomeScreen = ({ navigation, route }) => {
           Examination Card History
         </Text>
         <FlatList
+          removeClippedSubviews
           data={cards}
-          keyExtractor={(item) => item.probability}
+          keyExtractor={(item) => item.id}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => <ECHistory card={{ item }} />}
