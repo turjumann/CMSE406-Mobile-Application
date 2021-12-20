@@ -4,47 +4,50 @@ import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import Text from "../components/Text";
 import { db } from "../backend/firebase";
 import firebase from "firebase";
-import { FontAwesome5 } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-export default MessageScreen = ({ route, navigation }) => {
+export default MessageScreenDocs = ({ route, navigation }) => {
   const dbs = firebase.firestore;
   const { params } = route;
   const { guestId, guestName, guestSurname, currentUserID } = params;
-  const [msgValue, setMsgValue] = useState("");
   const [messages, setMessages] = useState([]);
-  const [currId, setCurrId] = useState();
 
-  const getCardsInfo = async () => {
-    await db
-      .collection("allUsers")
-      .doc(currentUserID)
-      .get()
-      .then((querySnapshot) => {
-        let newData = {
-          id: querySnapshot.id,
-          name: querySnapshot.data().name,
-          surname: querySnapshot.data().surname,
-          age: querySnapshot.data().age,
-          sex: querySnapshot.data().sex,
-          profilePhoto: querySnapshot.data().profilePhotoUrl,
-        };
-        if (newData?.age === undefined) {
-          console.log("from doctor in messages");
-          return true;
-        }
-      });
-  };
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
       headerBackTitle: "Back",
       headerTintColor: "#222222",
-
       headerTitle: () => (
         <Text medium bold color="#222222">
           {guestName + " " + guestSurname}
         </Text>
+      ),
+      headerRight: () => (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: 30,
+            marginRight: 20,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("DocEC", {
+                guestName,
+                guestSurname,
+                guestId,
+              });
+            }}
+          >
+            <Icon
+              name="address-card"
+              type="antdesign"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
       ),
     });
   });

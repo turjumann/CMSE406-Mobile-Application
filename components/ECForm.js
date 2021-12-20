@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Button, CheckBox } from "react-native-elements";
+import { auth, db } from "../backend/firebase";
 
 const ECForm = (props) => {
   const [check1, setCheck1] = useState(false);
@@ -18,8 +20,8 @@ const ECForm = (props) => {
   const [check6, setCheck6] = useState(false);
   const [check7, setCheck7] = useState(false);
 
-  //const [x, setX] = useState(false);
   const [examinationCard, setExaminationCard] = useState({
+    id: new Date(),
     age: 23,
     sex: 1,
     lossOfST: 0,
@@ -32,10 +34,39 @@ const ECForm = (props) => {
     probability: 0,
   });
 
+  getCurrentUser = () => {
+    return auth.currentUser;
+  };
+
+  const createUserEC = async () => {
+    const uid = getCurrentUser().uid;
+    try {
+      await db.collection("EC-Forms").doc(uid).collection("EC-History").add({
+        id: examinationCard.id,
+        age: examinationCard.age,
+        sex: examinationCard.sex,
+        lossOfST: examinationCard.lossOfST,
+        fever: examinationCard.fever,
+        cough: examinationCard.cough,
+        fatigue: examinationCard.fatigue,
+        diarrhea: examinationCard.diarrhea,
+        meals: examinationCard.meals,
+        abdominalPain: examinationCard.abdominalPain,
+        probability: examinationCard.probability,
+      });
+    } catch (e) {
+      Alert.alert(e.message);
+      console.log("Error @createUserEC: ", e.message);
+    }
+  };
+
+  //const [x, setX] = useState(false);
+
   useEffect(() => {
     if (examinationCard.probability) {
       const unsubscribe = props.onSubmit(examinationCard);
       console.log("inside useEffect: ", examinationCard.probability);
+      createUserEC();
       return unsubscribe;
     }
   }, [examinationCard.probability]);

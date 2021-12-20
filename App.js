@@ -11,6 +11,8 @@ import AddChatScreen from "./screens/AddChatScreen";
 import AddChatScreenDocs from "./screens/AddChatScreenDocs";
 import ChatScreen from "./screens/ChatScreen";
 import MessageScreen from "./screens/MessageScreen";
+import MessageScreenDocs from "./screens/MessageScreenDocs";
+import DocECScreen from "./screens/DocECScreen";
 
 //Creating a stack for the screens
 const Stack = createStackNavigator();
@@ -38,6 +40,8 @@ export default function App() {
         <Stack.Screen name="AddChatDocs" component={AddChatScreenDocs} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="Message" component={MessageScreen} />
+        <Stack.Screen name="MessageDocs" component={MessageScreenDocs} />
+        <Stack.Screen name="DocEC" component={DocECScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

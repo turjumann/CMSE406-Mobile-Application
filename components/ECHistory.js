@@ -22,15 +22,15 @@ const ECHistory = ({ card }) => {
           Symptoms:
         </Text>
         <View>
-          <View style={{ alignItems: "center" }}>
+          <View style={{ alignItems: "left" }}>
             <Text style={{ color: "white" }}>
-              {card.item?.lossOfST ? "Loss of Smell and Taste \n" : ""}
-              {card.item?.fever ? "Fever \n" : ""}
-              {card.item?.cough ? "Persistent Cough \n" : ""}
-              {card.item?.fatigue ? "Fatigue \n" : ""}
-              {card.item?.diarrhea ? "Diarrhea \n" : ""}
-              {card.item?.abdominalPain ? "Abdominal Pain \n" : ""}
-              {card.item?.meals ? "Skipping Meals \n" : ""}
+              {card.item?.lossOfST ? "    Loss of Smell and Taste \n" : ""}
+              {card.item?.fever ? "    Fever \n" : ""}
+              {card.item?.cough ? "    Persistent Cough \n" : ""}
+              {card.item?.fatigue ? "    Fatigue \n" : ""}
+              {card.item?.diarrhea ? "    Diarrhea \n" : ""}
+              {card.item?.abdominalPain ? "    Abdominal Pain \n" : ""}
+              {card.item?.meals ? "    Skipping Meals \n" : ""}
             </Text>
             <Text style={{ color: "white" }}></Text>
           </View>

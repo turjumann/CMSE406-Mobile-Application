@@ -76,7 +76,7 @@ export default CustomListItemDocs = ({ navigation }) => {
   }, []);
 
   const onTap = (guestId, guestName, guestSurname) => {
-    navigation.navigate("Message", {
+    navigation.navigate("MessageDocs", {
       guestName,
       guestSurname,
       guestId,
