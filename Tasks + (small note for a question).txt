@@ -1,0 +1,13 @@
+Step by Step:
+
+1. I need a profile screen for doctors.
+2. I need a profile screen for patients.
+3. I need a screen for doctors that shows the patient's info.
+
+
+1. 
+2. 
+3. 
+
+
+note: what would be a better practice, I can either create a method ( a long one which means slower) that checks if the user is a doc or patient, and render the corresponding user's info to the screen, or create 2 screens, one for the doctor and one for the patient, and both of them have 2 different methods. (short ones which means faster)
