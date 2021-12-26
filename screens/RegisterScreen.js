@@ -56,6 +56,7 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState();
+  const [docDocument, setDocDocument] = useState();
   const [patientData, setPatientData] = useState(true);
   const [doctorData, setDoctorData] = useState(false);
 
@@ -84,6 +85,10 @@ export default function RegisterScreen({ navigation }) {
       console.log(radioButtonArray[1].value);
       setUSex(radioButtonArray[0].value);
     }
+  };
+
+  const signOutUser = () => {
+    auth.signOut();
   };
 
   //Manipulating the top bar
@@ -137,6 +142,28 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
+  //uploadDocument
+  const uploadDocument = async (uri) => {
+    const uid = getCurrentUser().uid;
+
+    try {
+      const photo = await getBlob(uri);
+
+      const imageRef = firebase.storage().ref("docDocuments").child(uid);
+      await imageRef.put(photo);
+
+      const url = await imageRef.getDownloadURL();
+
+      await db.collection("allUsers").doc(uid).update({
+        document: url,
+      });
+
+      return url;
+    } catch (error) {
+      console.log("Error @uploadDocument: ", error);
+    }
+  };
+
   const createUserPatient = async (user) => {
     try {
       await auth.createUserWithEmailAndPassword(user.email, user.password);
@@ -183,6 +210,7 @@ export default function RegisterScreen({ navigation }) {
       const uid = getCurrentUser().uid;
       console.log(uid);
       let profilePhotoUrl = "default";
+      let docDocumentAdded = "default";
 
       await db
         .collection("doctors")
@@ -193,6 +221,8 @@ export default function RegisterScreen({ navigation }) {
           hospital: user.hospital,
           email: user.email,
           profilePhotoUrl,
+          document: user.docDocument,
+          approved: user.approved,
         });
 
       await db
@@ -204,17 +234,22 @@ export default function RegisterScreen({ navigation }) {
           hospital: user.hospital,
           email: user.email,
           profilePhotoUrl,
+          document: user.docDocument,
+          approved: user.approved,
         });
 
       if (user.profilePhoto) {
         profilePhotoUrl = await uploadProfilePhoto(user.profilePhoto);
       }
+
+      if (user.docDocument) {
+        docDocumentAdded = await uploadDocument(user.docDocument);
+      }
       delete user.password;
-      auth.onAuthStateChanged((authUser) => {
-        if (authUser) {
-          navigation.replace("HomeDocs", profilePhotoUrl);
-        }
-      });
+      signOutUser();
+      alert("Account created! Pending Approval...");
+      navigation.navigate("Login");
+
       return { ...user, profilePhotoUrl, uid };
     } catch (error) {
       Alert.alert(error.message);
@@ -246,6 +281,33 @@ export default function RegisterScreen({ navigation }) {
     } catch (error) {
       console.log("Error @pickImage: ", error);
     }
+  };
+
+  const pickDoc = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.cancelled) {
+        setDocDocument(result.uri);
+      }
+    } catch (error) {
+      console.log("Error @pickDoc: ", error);
+    }
+  };
+
+  const addDocDocument = async () => {
+    const status = await getPermissions();
+    if (status !== "granted") {
+      alert("We need permission to access your photo library.");
+
+      return;
+    }
+    pickDoc();
   };
 
   const addProfilePhoto = async () => {
@@ -284,7 +346,9 @@ export default function RegisterScreen({ navigation }) {
       hospital,
       email,
       password,
+      docDocument,
       profilePhoto,
+      approved: "0",
     };
 
     console.log(name, surname, hospital, email, password);
@@ -343,6 +407,24 @@ export default function RegisterScreen({ navigation }) {
                   onChangeText={(hospital) => setHospital(hospital)}
                   value={hospital}
                 />
+              </AuthContainer>
+            ) : null}
+            {doctorData ? (
+              <AuthContainer>
+                <AuthTitle>Approving Docs</AuthTitle>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <AppDocuments source={{ uri: docDocument }} />
+                  <AppDocumentsUpload onPress={addDocDocument}>
+                    <Text small bold center color="#ffffff">
+                      Upload Document
+                    </Text>
+                  </AppDocumentsUpload>
+                </View>
               </AuthContainer>
             ) : null}
             {patientData ? (
@@ -455,6 +537,28 @@ const ProfilePhotoContainer = styled.TouchableOpacity`
   margin-top: 16px;
   overflow: hidden;
   margin-bottom: 16px;
+`;
+
+const AppDocuments = styled.Image`
+  background-color: #e1e2e6;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  align-self: flex-start;
+  margin-top: 16px;
+  overflow: hidden;
+`;
+
+const AppDocumentsUpload = styled.TouchableOpacity`
+  background-color: #222222;
+  width: 80px;
+  height: 40px;
+  border-radius: 5px;
+  align-self: flex-end;
+  margin-top: 16px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
 `;
 
 const DefaultProfilePhoto = styled.View`

@@ -12,6 +12,10 @@ const LoginScreen = ({ navigation }) => {
   const [userProfile, setUserProfile] = useState();
   const [currentUser, setCurrentUser] = useState();
 
+  const signOutUser = () => {
+    auth.signOut();
+  };
+
   // Checking if there is a logged in user. If yes, it returns to the home screen
   useEffect(() => {
     const unsubscribed = auth.onAuthStateChanged((authUser) => {
@@ -29,12 +33,20 @@ const LoginScreen = ({ navigation }) => {
               age: querySnapshot.data().age,
               sex: querySnapshot.data().sex,
               profilePhoto: querySnapshot.data().profilePhotoUrl,
+              approved: querySnapshot.data().approved,
             };
             if (newData?.age === undefined) {
-              navigation.replace(
-                "HomeDocs",
-                querySnapshot.data().profilePhotoUrl
-              );
+              console.log(newData?.approved);
+              if (newData?.approved == "0") {
+                alert("The user is not approved by an admin yet..");
+                console.log("Not approved");
+                signOutUser();
+              } else {
+                navigation.replace(
+                  "HomeDocs",
+                  querySnapshot.data().profilePhotoUrl
+                );
+              }
               console.log("from doctor");
             } else {
               navigation.replace("Home", querySnapshot.data().profilePhotoUrl);
@@ -85,6 +97,7 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.inputContainer}>
         <Input
           placeholder="Email"
+          keyboardType="email-address"
           autoFocus
           type="email"
           value={email}
