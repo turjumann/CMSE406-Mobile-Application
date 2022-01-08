@@ -46,8 +46,10 @@ const HomeScreen = ({ navigation, route }) => {
       });
   };
   useEffect(() => {
-    setCards([]);
-    getCards();
+    setTimeout(() => {
+      setCards([]);
+      getCards();
+    }, 500);
   }, [onRender]);
 
   //Sign out method. When called, it returns the user to the login screen
@@ -60,7 +62,7 @@ const HomeScreen = ({ navigation, route }) => {
   const onSubmit = (card) => {
     //setCards((cards) => [...cards, card]);
     setModalVisible(!modalVisible);
-    setOnRender(onRender + 1);
+    setOnRender((v) => v + 1);
   };
   //Altering the top bar title, icons, and style.
   useLayoutEffect(() => {

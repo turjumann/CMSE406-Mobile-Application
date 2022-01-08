@@ -41,6 +41,10 @@ const ECForm = (props) => {
   const createUserEC = async () => {
     const uid = getCurrentUser().uid;
     try {
+      await db
+        .collection("EC-Forms")
+        .doc(uid)
+        .set({ updatedAt: new Date() }, { merge: true });
       await db.collection("EC-Forms").doc(uid).collection("EC-History").add({
         id: examinationCard.id,
         age: examinationCard.age,
@@ -53,6 +57,7 @@ const ECForm = (props) => {
         meals: examinationCard.meals,
         abdominalPain: examinationCard.abdominalPain,
         probability: examinationCard.probability,
+        userEmail: getCurrentUser().email,
       });
     } catch (e) {
       Alert.alert(e.message);
