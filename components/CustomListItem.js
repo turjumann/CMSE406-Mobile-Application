@@ -84,7 +84,7 @@ export default CustomListItem = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={{ height: "100%", backgroundColor: "white" }}>
       <View style={{ height: 10 }} />
       {chats.map((item, i) => (
         <ListItem

@@ -18,23 +18,28 @@ const NewsHistory = ({ news, navigation }) => {
           Body: {news.item.body}
         </Text>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("NewsScreen", news)}
-          style={{ alignSelf: "flex-end", marginRight: 15 }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 15,
-              height: 25,
-              width: 100,
-            }}
+        <View>
+          <Text style={styles.listTime}>
+            {news.item.time.toDate().toString().slice(0, 24)}
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("NewsScreen", news)}
+            style={{ alignSelf: "flex-end", marginRight: 15 }}
           >
-            <Text style={{ color: "black" }}>Read More..</Text>
-          </View>
-        </TouchableOpacity>
+            <View
+              style={{
+                backgroundColor: "#fff",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 15,
+                height: 25,
+                width: 100,
+              }}
+            >
+              <Text style={{ color: "black" }}>Read More..</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -47,9 +52,9 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 16,
     borderRadius: 6,
+    marginBottom: 12,
     marginHorizontal: 12,
     width: 300,
-    height: "100%",
   },
   listTitle: {
     fontSize: 15,
@@ -63,6 +68,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "white",
     marginBottom: 18,
+    alignSelf: "flex-start",
+  },
+  listTime: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "white",
     alignSelf: "flex-start",
   },
 });

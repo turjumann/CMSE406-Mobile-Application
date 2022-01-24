@@ -22,10 +22,31 @@ import { StatusBar } from "expo-status-bar";
 import ECForm from "../components/ECForm";
 import { ListItem } from "react-native-elements";
 import ECHistory from "../components/ECHistory";
+import NewsHistory from "../components/NewsHistory";
 
 const HomeScreenDocs = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [cards, setCards] = useState([]);
+  const [news, setNews] = useState([]);
+
+  const getNewsIds = async () => {
+    const snapshot = await db
+      .collection("news")
+      .orderBy("time", "desc")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((snapshot) => {
+          setNews((news) => [...news, snapshot.data()]);
+        });
+      });
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setNews([]);
+      getNewsIds();
+    }, 500);
+  }, []);
 
   getCurrentUser = () => {
     return auth.currentUser;
@@ -77,24 +98,33 @@ const HomeScreenDocs = ({ navigation, route }) => {
     });
   }, []);
 
-  const enterChat = (id, chatName) => {
-    navigation.navigate("Chat", {
-      id,
-      chatName,
-    });
-  };
-
-  const onClose = () => {
-    setModalVisible(!modalVisible);
-  };
-
-  //Renders the components
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
-      <SafeAreaView>
-        <StatusBar style="dark" />
-      </SafeAreaView>
-    </View>
+    <ScrollView style={{ backgroundColor: "white" }}>
+      <StatusBar style="dark" />
+
+      <Text
+        style={{
+          marginBottom: 7,
+          marginTop: 7,
+          fontFamily: "Avenir",
+          fontWeight: "bold",
+          fontSize: 20,
+          alignSelf: "center",
+        }}
+      >
+        News
+      </Text>
+      <FlatList
+        style={{ alignSelf: "center" }}
+        removeClippedSubviews
+        data={news}
+        keyExtractor={(item) => item.time.seconds}
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <NewsHistory navigation={navigation} news={{ item }} />
+        )}
+      />
+    </ScrollView>
   );
 };
 

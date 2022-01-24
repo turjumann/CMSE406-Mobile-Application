@@ -4,8 +4,6 @@ import { ScrollView, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 const NewsScreen = ({ navigation, route }) => {
   const { params } = route;
-
-  console.log(params.item.title);
   useLayoutEffect(() => {
     navigation.setOptions({
       title: params.item.title,
@@ -16,15 +14,13 @@ const NewsScreen = ({ navigation, route }) => {
     });
   }, [navigation]);
   return (
-    <ScrollView
-      style={[
-        styles.listContainer,
-        { height: "100%", backgroundColor: "white" },
-      ]}
-    >
+    <ScrollView style={[styles.listContainer, { backgroundColor: "#fff" }]}>
       <StatusBar style="dark" />
       <Text style={styles.listTitle}>{params.item.title}</Text>
       <Text style={styles.listBody}>{params.item.body}</Text>
+      <Text style={{ fontStyle: "italic", alignSelf: "flex-start" }}>
+        Date: {params.item.time.toDate().toString().slice(0, 24)}
+      </Text>
       <Text style={styles.listAuthor} numberOfLines={1}>
         Author: {params.item.author}
       </Text>
@@ -39,27 +35,28 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 16,
     width: "100%",
-    height: "100%",
   },
   listTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "black",
+    color: "#2D2D2D",
     marginBottom: 18,
     alignSelf: "center",
   },
   listAuthor: {
     fontSize: 16,
-    fontWeight: "300",
-    color: "black",
+    fontWeight: "500",
+    color: "#2D2D2D",
     marginBottom: 18,
+    marginTop: 12,
+    fontStyle: "italic",
     alignSelf: "flex-start",
   },
   listBody: {
     fontSize: 15,
     fontWeight: "700",
-    color: "black",
-    marginBottom: 18,
+    color: "#2D2D2D",
+    marginBottom: 10,
     alignSelf: "flex-start",
   },
 });

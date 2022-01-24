@@ -34,6 +34,7 @@ const HomeScreen = ({ navigation, route }) => {
   const getNewsIds = async () => {
     const snapshot = await db
       .collection("news")
+      .orderBy("time", "desc")
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((snapshot) => {

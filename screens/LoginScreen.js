@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Button, Input, Image } from "react-native-elements";
 import { auth, db } from "../backend/firebase";
+import Text from "../components/Text";
+
+import styled from "styled-components";
+import { ScrollView } from "react-native-gesture-handler";
 //Importing Firebase here <<
 
 const LoginScreen = ({ navigation }) => {
@@ -11,6 +15,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState();
   const [userProfile, setUserProfile] = useState();
   const [currentUser, setCurrentUser] = useState();
+  const [loading, setLoading] = useState(false);
 
   const signOutUser = () => {
     auth.signOut();
@@ -85,61 +90,150 @@ const LoginScreen = ({ navigation }) => {
 
   //Rendering the screen components
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+    <Container>
       <StatusBar style="dark" />
-      <Image
-        source={{
-          uri: "https://vanguardmedgroup.com/wp-content/uploads/2020/03/covid19.png",
-        }}
-        style={{ width: 200, height: 200 }}
-      />
 
-      <View style={styles.inputContainer}>
-        <Input
-          placeholder="Email"
-          keyboardType="email-address"
-          autoFocus
-          type="email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
+      <View
+        style={{
+          height: 310,
+          alignItems: "center",
+          flexDirection: "column",
+          flex: 1,
+        }}
+      >
+        <Image
+          source={{
+            uri: "https://vanguardmedgroup.com/wp-content/uploads/2020/03/covid19.png",
+          }}
+          style={{ width: 150, height: 150, marginTop: 24, marginBottom: 24 }}
         />
-        <Input
-          placeholder="Password"
-          type="password"
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          onSubmitEditing={signIn}
+        <View style={{ justifyContent: "center" }}>
+          <KeyboardAvoidingView behavior="padding" style={styles.container}>
+            <Auth>
+              <AuthContainer>
+                <AuthTitle>Email Address</AuthTitle>
+                <AuthField
+                  autoCapitalize="none"
+                  autoCompleteType="email"
+                  autoCorrect={false}
+                  autoFocus={false}
+                  keyboardType="email-address"
+                  onChangeText={(email) => setEmail(email.trim())}
+                  value={email}
+                />
+              </AuthContainer>
+              <AuthContainer>
+                <AuthTitle>Password</AuthTitle>
+                <AuthField
+                  autoCapitalize="none"
+                  autoCompleteType="password"
+                  autoCorrect={false}
+                  autoFocus={false}
+                  secureTextEntry={true}
+                  onChangeText={(password) => setPassword(password.trim())}
+                  value={password}
+                />
+              </AuthContainer>
+            </Auth>
+            <LoginContainer onPress={signIn} disabled={loading}>
+              {loading ? (
+                <Loading />
+              ) : (
+                <Text bold center color="#ffffff">
+                  Login
+                </Text>
+              )}
+            </LoginContainer>
+
+            <RegisterContainer onPress={() => navigation.navigate("Register")}>
+              <Text small bold center>
+                You don't have an account?{" "}
+                <Text bold color="#932432">
+                  Register
+                </Text>
+              </Text>
+            </RegisterContainer>
+          </KeyboardAvoidingView>
+        </View>
+      </View>
+      <View style={{ alignItems: "center" }}>
+        <Image
+          source={{
+            uri: "https://firebasestorage.googleapis.com/v0/b/cmse322.appspot.com/o/Logo%2Flogo.png?alt=media&token=2a3de4eb-186c-4f0a-a366-1f147eda183d",
+          }}
+          style={{
+            alignSelf: "center",
+            width: 150,
+            height: 150,
+            marginTop: 12,
+            marginBottom: 12,
+          }}
         />
       </View>
-      <Button containerStyle={styles.button} onPress={signIn} title="Login" />
-      <Button
-        onPress={() => navigation.navigate("Register")}
-        containerStyle={styles.button}
-        type="outline"
-        title="Sign Up"
-      />
-      <View style={{ height: 100 }} />
-    </KeyboardAvoidingView>
+    </Container>
   );
 };
 
 export default LoginScreen;
 
-//Styles for components rendered to screen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "white",
-  },
-  inputContainer: {
-    width: 300,
-  },
-  button: {
-    width: 200,
-    marginTop: 10,
   },
 });
+
+const Container = styled.View`
+  flex: 1;
+  background-color: white;
+`;
+
+const Auth = styled.View`
+  margin-top: 0px;
+`;
+
+const AuthContainer = styled.View`
+  margin-bottom: 20px;
+  width: 250px;
+`;
+
+const AuthTitle = styled(Text)`
+  color: #8e93a1;
+  font-size: 15px;
+  text-transform: uppercase;
+  font-weight: 400;
+`;
+
+const AuthField = styled.TextInput`
+  border-bottom-color: #8e93a1;
+  border-bottom-width: 0.5px;
+  height: 25px;
+`;
+
+const LoginContainer = styled.TouchableOpacity`
+  margin-top: 12px
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  background-color: #222222;
+  border-radius: 6px;
+`;
+
+const Loading = styled.ActivityIndicator.attrs((props) => ({
+  color: "#ffffff",
+  size: "small",
+}))``;
+
+const RegisterContainer = styled.TouchableOpacity`
+  margin-top: 16px;
+`;
+
+const HorizontalLine = styled.View`
+  border-bottom-color: #8e93a1;
+  border-bottom-width: 0.5px;
+  margin-bottom: 20px;
+`;
+const MainHorizontalLine = styled.View`
+  border-top-color: #5d616e;
+  border-top-width: 2px;
+`;
