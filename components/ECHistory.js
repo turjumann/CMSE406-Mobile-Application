@@ -1,11 +1,17 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import ListItemSwipeable from "react-native-elements/dist/list/ListItemSwipeable";
+import { LinearGradient } from "expo-linear-gradient";
 
 const ECHistory = ({ card }) => {
   // console.log(card);
   return (
-    <View style={[styles.listContainer, { backgroundColor: "#2D2D2D" }]}>
+    <View style={[styles.listContainer, { backgroundColor: "#8F0000" }]}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["#8E0E00", "#1F1C18"]}
+        style={styles.background}
+      />
       <View>
         <Text style={styles.listTitle} numberOfLines={1}>
           Probability: {card.item?.probability}%
@@ -56,5 +62,13 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 18,
     alignSelf: "center",
+  },
+  background: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: "133%",
+    borderRadius: 6,
   },
 });

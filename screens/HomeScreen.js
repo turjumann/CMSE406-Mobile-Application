@@ -22,11 +22,25 @@ import { StatusBar } from "expo-status-bar";
 import ECForm from "../components/ECForm";
 import { ListItem } from "react-native-elements";
 import ECHistory from "../components/ECHistory";
+import NewsHistory from "../components/NewsHistory";
 
 const HomeScreen = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [cards, setCards] = useState([]);
+  const [news, setNews] = useState([]);
   const [onRender, setOnRender] = useState(0);
+  let RandomNumber = Math.floor(Math.random() * 100) + 1;
+
+  const getNewsIds = async () => {
+    const snapshot = await db
+      .collection("news")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((snapshot) => {
+          setNews((news) => [...news, snapshot.data()]);
+        });
+      });
+  };
 
   getCurrentUser = () => {
     return auth.currentUser;
@@ -45,10 +59,13 @@ const HomeScreen = ({ navigation, route }) => {
         });
       });
   };
+
   useEffect(() => {
     setTimeout(() => {
       setCards([]);
+      setNews([]);
       getCards();
+      getNewsIds();
     }, 500);
   }, [onRender]);
 
@@ -146,26 +163,50 @@ const HomeScreen = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
-        <Text
-          style={{
-            marginBottom: 7,
-            marginTop: 7,
-            fontFamily: "Avenir",
-            fontWeight: "bold",
-            fontSize: 20,
-            alignSelf: "center",
-          }}
-        >
-          Examination Card History
-        </Text>
-        <FlatList
-          removeClippedSubviews
-          data={cards}
-          keyExtractor={(item) => item.id}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => <ECHistory card={{ item }} />}
-        />
+        <ScrollView style={{ height: "100%" }}>
+          <Text
+            style={{
+              marginBottom: 7,
+              marginTop: 7,
+              fontFamily: "Avenir",
+              fontWeight: "bold",
+              fontSize: 20,
+              alignSelf: "center",
+            }}
+          >
+            Examination Card History
+          </Text>
+          <FlatList
+            removeClippedSubviews
+            data={cards}
+            keyExtractor={(item) => item.id}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => <ECHistory card={{ item }} />}
+          />
+          <Text
+            style={{
+              marginBottom: 7,
+              marginTop: 7,
+              fontFamily: "Avenir",
+              fontWeight: "bold",
+              fontSize: 20,
+              alignSelf: "center",
+            }}
+          >
+            News
+          </Text>
+          <FlatList
+            removeClippedSubviews
+            data={news}
+            keyExtractor={(item) => item.time.seconds}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <NewsHistory navigation={navigation} news={{ item }} />
+            )}
+          />
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

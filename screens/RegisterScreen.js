@@ -212,16 +212,6 @@ export default function RegisterScreen({ navigation }) {
       let profilePhotoUrl = "default";
       let docDocumentAdded = "default";
 
-      await db.collection("doctors").doc(uid).set({
-        name: user.name,
-        surname: user.surname,
-        hospital: user.hospital,
-        email: user.email,
-        profilePhotoUrl,
-        document: user.docDocument,
-        approved: user.approved,
-      });
-
       await db.collection("allUsers").doc(uid).set({
         name: user.name,
         surname: user.surname,
