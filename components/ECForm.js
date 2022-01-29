@@ -75,6 +75,7 @@ const ECForm = (props) => {
       return unsubscribe;
     }
   }, [examinationCard.probability]);
+  
   const calculations = () => {
     const preResult =
       -2.3 +

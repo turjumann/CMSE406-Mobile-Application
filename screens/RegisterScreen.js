@@ -60,7 +60,7 @@ export default function RegisterScreen({ navigation }) {
   const [patientData, setPatientData] = useState(true);
   const [doctorData, setDoctorData] = useState(false);
 
-  const [sex, setSex] = useState(radioButtonsData2); //not implemented in firebase
+  const [sex, setSex] = useState(radioButtonsData2);
   const [radioButtons, setRadioButtons] = useState(radioButtonsData);
 
   const onPressRadioButton = (radioButtonArray) => {
@@ -426,7 +426,7 @@ export default function RegisterScreen({ navigation }) {
             ) : null}
             {patientData ? (
               <SexContainer>
-                <AuthTitle>Sex</AuthTitle>
+                <AuthTitle>Gender</AuthTitle>
                 <SexRadioContainer>
                   <RadioGroup
                     radioButtons={sex}
